@@ -21,32 +21,25 @@ class ParticleSystem{
     position = location.get();
     for(int i = 0 ; i < particleNumber; i++){
       particle = new Particle();
-      if(millis() > time + 5){
-        particleList.add(particle);
-        time = millis();
-      }
-      // particleList.add(index, particle);
-      // particle.setIndex(index);
-      // index = i;
+      particleList.add(particle);
     }
   }
-
-  // void addParticle(PVector location){
-  //   position = location.get();
-  //   if(particleList.size() < 500){
-  //     particleList.add(new Particle());
-  //   }
-  // }
 
   void showParticle(){
-    for(int i = particleList.size() - 1; i >= 0; i--){
-      Particle part = particleList.get(i);
+    for(Particle part : particleList){
       part.run();
-      if(part.isDead()){
-        particleList.remove(part);
-      }
     }
   }
+
+  // void showParticle(){
+  //   for(int i = particleList.size() - 1; i >= 0; i--){
+  //     Particle part = particleList.get(i);
+  //     part.run();
+  //     if(part.isDead()){
+  //       particleList.remove(part);
+  //     }
+  //   }
+  // }
 
   void repulseParticle(){
     for(int i = 0; i < particleList.size(); i++){

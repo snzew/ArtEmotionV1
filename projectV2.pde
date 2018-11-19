@@ -16,12 +16,12 @@ void setup(){
 
 	particleSystem = new ParticleSystem();
 	//sound = new Sound(this);
-	//particleSystem.addParticle(new PVector(random(width), random(height)));
+	particleSystem.addParticle(new PVector(random(width), random(height)));
 }
 
 void draw(){
 	background(0);
-	particleSystem.addParticle(new PVector(random(width), random(height)));
+	//particleSystem.addParticle(new PVector(random(width), random(height)));
 
 	particleSystem.run();
 	

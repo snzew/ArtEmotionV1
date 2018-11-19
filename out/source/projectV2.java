@@ -36,12 +36,12 @@ public void setup(){
 
 	particleSystem = new ParticleSystem();
 	//sound = new Sound(this);
-	//particleSystem.addParticle(new PVector(random(width), random(height)));
+	particleSystem.addParticle(new PVector(random(width), random(height)));
 }
 
 public void draw(){
 	background(0);
-	particleSystem.addParticle(new PVector(random(width), random(height)));
+	//particleSystem.addParticle(new PVector(random(width), random(height)));
 
 	particleSystem.run();
 	
@@ -207,7 +207,7 @@ class Particle{
     position.add(velocity);
 
     acceleration.mult(0);
-    lifespan -= 0.00005f;
+    //lifespan -= 0.00005;
   }
 
   public void checkEdges(){
@@ -274,32 +274,25 @@ class ParticleSystem{
     position = location.get();
     for(int i = 0 ; i < particleNumber; i++){
       particle = new Particle();
-      if(millis() > time + 5){
-        particleList.add(particle);
-        time = millis();
-      }
-      // particleList.add(index, particle);
-      // particle.setIndex(index);
-      // index = i;
+      particleList.add(particle);
     }
   }
-
-  // void addParticle(PVector location){
-  //   position = location.get();
-  //   if(particleList.size() < 500){
-  //     particleList.add(new Particle());
-  //   }
-  // }
 
   public void showParticle(){
-    for(int i = particleList.size() - 1; i >= 0; i--){
-      Particle part = particleList.get(i);
+    for(Particle part : particleList){
       part.run();
-      if(part.isDead()){
-        particleList.remove(part);
-      }
     }
   }
+
+  // void showParticle(){
+  //   for(int i = particleList.size() - 1; i >= 0; i--){
+  //     Particle part = particleList.get(i);
+  //     part.run();
+  //     if(part.isDead()){
+  //       particleList.remove(part);
+  //     }
+  //   }
+  // }
 
   public void repulseParticle(){
     for(int i = 0; i < particleList.size(); i++){
