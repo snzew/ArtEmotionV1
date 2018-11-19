@@ -66,14 +66,24 @@ class ParticleSystem{
   }
 
 	void getAttracted(PVector location){
-    handPosition = location.get();
-		hand = new Attractor(handPosition);
+  //void getAttracted(float x, float y){
+    //handPosition = new PVector(x, y);
+    //handPosition = location.get();
+		//hand = new Attractor(x, y);
+    hand = new Attractor(location);
 
 		for(Particle part : particleList){
 			force = hand.attract(part);
 			part.applyForce(force);
 		}
 	}
+
+  // void getAttracted(float x, float y){
+  //   for(Particle part : particleList){
+  //     part.attractTest(x,y);
+  //   }
+
+  // }
 
 	void getRepulsed(PVector handpos){
 		handPosition = handpos.get();

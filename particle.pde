@@ -14,6 +14,13 @@ class Particle{
     acceleration = new PVector(random(-1,1), random(-1,1));
     lifespan = 255;
   }
+
+  void attractTest(float x, float y){
+    PVector mouse = new PVector(x,y);
+    mouse.sub(position);
+    mouse.setMag(0.4);
+    acceleration = mouse;
+  }
     
   void applyForce(PVector f){
     PVector force = PVector.div(f, mass);

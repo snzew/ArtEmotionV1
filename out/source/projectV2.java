@@ -45,52 +45,56 @@ public void setup(){
 
 public void draw(){
 	background(0);
-	// if(millis() > time + 50){
-	// 	particleSystem.addParticle(new PVector(random(width), random(height)));
-	// 	time = millis();
-	// }
-		particleSystem.addParticle(new PVector(random(width), random(height)));
-
-
-	image(kinect.getDepthImage(), 640, 0);
+	particleSystem.addParticle(new PVector(random(width), random(height)));
 
 	particleSystem.run();
+	
 	float sumX = 0;
 	float sumY = 0;
 	float totalPixels = 0;
 	float avgX = 0;
-	float avgY =0 ;
+	float avgY = 0 ;
 
-	
 	int[] depth = kinect.getRawDepth();
-	img.loadPixels();
 
 	for(int x = 0; x < kinect.width; x++){
 		for(int y = 0; y < kinect.height; y++){
 			
 			int offset = x + y * kinect.width;
 			int depthValue = depth[offset];
-			int minTrash = 500;
-			int maxTrash = 740;
+			int minTrash = 650;
+			int maxTrash = 745;
+		
 
 			if(depthValue > minTrash && depthValue < maxTrash){
-				//img.pixels[offset] = color(255,0, 150);
 				sumX += x;
 				sumY += y;
 				totalPixels ++;
+				avgX = sumX / totalPixels;
+				avgY = sumY / totalPixels;
+				// if(totalPixels > 500){
+				// 	PVector avgPosition = new PVector(x,y);
+				// 	PVector avgPosition = new PVector(random(x - 50, x + 50), random(y - 50, y + 50));
+				// 	fill(255);
+				// 	ellipse(x,y,20,20);
+				// 	particleSystem.getAttracted(x,y); //avgPosition);
+				// 	particleSystem.getAttracted(avgPosition);
+				// 	println(avgPosition);
+				// }
+
 			}
 		}
 	}
-	 avgX = sumX / totalPixels;
-	 avgY = sumY / totalPixels;
-
-	//img.updatePixels();
+	// avgX = sumX / totalPixels;
+	// avgY = sumY / totalPixels;
 	
 	PVector avgPosition = new PVector(avgX, avgY);
 
-	if(totalPixels > 4500){
+	if(totalPixels > 8000){
 		particleSystem.getAttracted(avgPosition);
-	}else if(totalPixels > 0 && totalPixels < 4000){
+		println("pixe: " + totalPixels);
+	}else if(totalPixels > 10 && totalPixels  < 8000){
+		println(totalPixels);
 		particleSystem.getRepulsed(avgPosition);
 	}
 }
@@ -155,20 +159,23 @@ class Attractor{
 	float distance;
 
 	Attractor(PVector position){
+	//Attractor(float x, float y){
 		location = position.get();
+		//location = new PVector(x,y);
 		mass = 20; // later one try with depthvalue
 		g = 5;
 	}
 
 	public PVector attract(Particle particle){
 		PVector force = PVector.sub(location, particle.position);
+		//PVector force = location.sub(particle.position);
 		distance = force.mag();
 		force.normalize();
 		//strength = (g * mass * particle.mass) * (distance * distance);
 		strength = g / distance * distance;
 		force.mult(strength);
-		ColourGenerator colour = new ColourGenerator();
     colour.update();
+		
 		return force;
 	}
 
@@ -176,7 +183,7 @@ class Attractor{
 		PVector force = PVector.sub(location, particle.position);
 		distance = force.mag();
 		force.normalize();
-		strength = -1 * g / distance* distance;//
+		strength = -1 * g / distance * distance;//
 		//strength = (g * mass * particle.mass) * (distance * distance); 
 		force.mult(strength);
     colour.update();
@@ -199,6 +206,13 @@ class Particle{
     velocity = new PVector(0, 0);
     acceleration = new PVector(random(-1,1), random(-1,1));
     lifespan = 255;
+  }
+
+  public void attractTest(float x, float y){
+    PVector mouse = new PVector(x,y);
+    mouse.sub(position);
+    mouse.setMag(0.4f);
+    acceleration = mouse;
   }
     
   public void applyForce(PVector f){
@@ -347,14 +361,24 @@ class ParticleSystem{
   }
 
 	public void getAttracted(PVector location){
-    handPosition = location.get();
-		hand = new Attractor(handPosition);
+  //void getAttracted(float x, float y){
+    //handPosition = new PVector(x, y);
+    //handPosition = location.get();
+		//hand = new Attractor(x, y);
+    hand = new Attractor(location);
 
 		for(Particle part : particleList){
 			force = hand.attract(part);
 			part.applyForce(force);
 		}
 	}
+
+  // void getAttracted(float x, float y){
+  //   for(Particle part : particleList){
+  //     part.attractTest(x,y);
+  //   }
+
+  // }
 
 	public void getRepulsed(PVector handpos){
 		handPosition = handpos.get();
