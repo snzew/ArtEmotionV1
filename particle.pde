@@ -14,14 +14,7 @@ class Particle{
     acceleration = new PVector(random(-1,1), random(-1,1));
     lifespan = 255;
   }
-
-  void attractTest(float x, float y){
-    PVector mouse = new PVector(x,y);
-    mouse.sub(position);
-    mouse.setMag(0.4);
-    acceleration = mouse;
-  }
-    
+  
   void applyForce(PVector f){
     PVector force = PVector.div(f, mass);
     acceleration.add(force);
@@ -44,13 +37,12 @@ class Particle{
   }
 
   void move(){
-    //println("partPosition: " + position);
     velocity.add(acceleration);
     velocity.limit(3);
     position.add(velocity);
 
     acceleration.mult(0);
-    lifespan -= 0.005;
+    lifespan -= 0.00005;
   }
 
   void checkEdges(){
@@ -87,12 +79,6 @@ class Particle{
     }
     return false;
   }
-
-  // void changeColor(){
-  // //fillColor = color(random(255), random(255), random(255));
-  // fillColor = color(0,160, random(255));
-  // }
-
 
   void run(){
     checkEdges();

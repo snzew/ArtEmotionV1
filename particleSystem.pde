@@ -12,7 +12,7 @@ class ParticleSystem{
   float time = 0;
 
   int index;
-  int particleNumber = 1000;
+  int particleNumber = 500;
   
   ParticleSystem(){
   }
@@ -21,7 +21,7 @@ class ParticleSystem{
     position = location.get();
     for(int i = 0 ; i < particleNumber; i++){
       particle = new Particle();
-      if(millis() > time + 10){
+      if(millis() > time + 5){
         particleList.add(particle);
         time = millis();
       }
@@ -39,7 +39,7 @@ class ParticleSystem{
   // }
 
   void showParticle(){
-    for(int i = particleList.size() -1; i >= 0; i--){
+    for(int i = particleList.size() - 1; i >= 0; i--){
       Particle part = particleList.get(i);
       part.run();
       if(part.isDead()){
@@ -66,10 +66,6 @@ class ParticleSystem{
   }
 
 	void getAttracted(PVector location){
-  //void getAttracted(float x, float y){
-    //handPosition = new PVector(x, y);
-    //handPosition = location.get();
-		//hand = new Attractor(x, y);
     hand = new Attractor(location);
 
 		for(Particle part : particleList){
@@ -78,16 +74,8 @@ class ParticleSystem{
 		}
 	}
 
-  // void getAttracted(float x, float y){
-  //   for(Particle part : particleList){
-  //     part.attractTest(x,y);
-  //   }
-
-  // }
-
-	void getRepulsed(PVector handpos){
-		handPosition = handpos.get();
-		hand = new Attractor(handPosition);
+	void getRepulsed(PVector handPos){
+		hand = new Attractor(handPos);
 
 		for(Particle part : particleList){
 			force = hand.repulse(part);

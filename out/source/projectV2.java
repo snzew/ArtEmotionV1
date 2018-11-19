@@ -25,13 +25,10 @@ Kinect kinect;
 ParticleSystem particleSystem;
 Sound sound;
 Attractor hand;
-PImage img;
 ColourGenerator colour = new ColourGenerator();
-float time = 0;
 
 public void setup(){
 	
-	//size(1280, 480);
 	
 	kinect = new Kinect(this);
 	kinect.initDepth();
@@ -39,8 +36,7 @@ public void setup(){
 
 	particleSystem = new ParticleSystem();
 	//sound = new Sound(this);
-	particleSystem.addParticle(new PVector(random(width), random(height)));
-	img = createImage(kinect.width, kinect.height, RGB);
+	//particleSystem.addParticle(new PVector(random(width), random(height)));
 }
 
 public void draw(){
@@ -51,9 +47,12 @@ public void draw(){
 	
 	float sumX = 0;
 	float sumY = 0;
+	float sumZ = 0;
 	float totalPixels = 0;
 	float avgX = 0;
-	float avgY = 0 ;
+	float avgY = 0;
+	float avgZ = 0;
+	
 
 	int[] depth = kinect.getRawDepth();
 
@@ -62,60 +61,31 @@ public void draw(){
 			
 			int offset = x + y * kinect.width;
 			int depthValue = depth[offset];
-			int minTrash = 650;
+			int minTrash = 500;
 			int maxTrash = 745;
-		
 
 			if(depthValue > minTrash && depthValue < maxTrash){
 				sumX += x;
 				sumY += y;
+				sumZ += depthValue;
 				totalPixels ++;
-				avgX = sumX / totalPixels;
-				avgY = sumY / totalPixels;
-				// if(totalPixels > 500){
-				// 	PVector avgPosition = new PVector(x,y);
-				// 	PVector avgPosition = new PVector(random(x - 50, x + 50), random(y - 50, y + 50));
-				// 	fill(255);
-				// 	ellipse(x,y,20,20);
-				// 	particleSystem.getAttracted(x,y); //avgPosition);
-				// 	particleSystem.getAttracted(avgPosition);
-				// 	println(avgPosition);
-				// }
-
 			}
 		}
 	}
-	// avgX = sumX / totalPixels;
-	// avgY = sumY / totalPixels;
-	
-	PVector avgPosition = new PVector(avgX, avgY);
 
-	if(totalPixels > 8000){
+	avgX = sumX / totalPixels;
+	avgY = sumY / totalPixels;
+	avgZ = Math.round(sumZ / (totalPixels * 10));
+	//println("depth: " + avgZ);
+	PVector avgPosition = new PVector(avgX, avgY);
+	//println("avgZ before: " + avgZ);
+	if(avgZ > 65 && avgZ <= 72){
+		//println(avgZ);
 		particleSystem.getAttracted(avgPosition);
-		println("pixe: " + totalPixels);
-	}else if(totalPixels > 10 && totalPixels  < 8000){
-		println(totalPixels);
+	}else if(avgZ > 72 && avgZ < 75){
 		particleSystem.getRepulsed(avgPosition);
 	}
 }
-
-
-// else if(totalPixels > 15000 && depthValue < 690){
-	// 	println("totalPix: " + totalPixels);
-	// 	particleSystem.getAttracted(avgPosition);
-	// }
-	// if(totalPixels > 500 && totalPixels < 10000){
-	// 	println("depth:" + depthValue);
-	// 	particleSystem.getAttracted(avgPosition);
-	// }
-	// if(depthValue > 660 && depthValue < 675){
-	// 	particleSystem.getRepulsed(avgPosition);
-	// }
-	//avgPosition = new PVector(avgX, avgY);
-	//particleSystem.getAttracted(avgPosition);
-
-	//println("avgPosition : " + avgPosition);
-	//image(img, 0, 0);
 class ColourGenerator
 {
   final static float MIN_SPEED = 0.2f;
@@ -159,19 +129,15 @@ class Attractor{
 	float distance;
 
 	Attractor(PVector position){
-	//Attractor(float x, float y){
 		location = position.get();
-		//location = new PVector(x,y);
-		mass = 20; // later one try with depthvalue
+		mass = random(20); // later one try with depthvalue
 		g = 5;
 	}
 
 	public PVector attract(Particle particle){
 		PVector force = PVector.sub(location, particle.position);
-		//PVector force = location.sub(particle.position);
 		distance = force.mag();
 		force.normalize();
-		//strength = (g * mass * particle.mass) * (distance * distance);
 		strength = g / distance * distance;
 		force.mult(strength);
     colour.update();
@@ -180,15 +146,21 @@ class Attractor{
 	}
 
 	public PVector repulse(Particle particle){
-		PVector force = PVector.sub(location, particle.position);
-		distance = force.mag();
-		force.normalize();
-		strength = -1 * g / distance * distance;//
-		//strength = (g * mass * particle.mass) * (distance * distance); 
-		force.mult(strength);
-    colour.update();
-		
+		PVector force;
+		float particleDistance = dist(location.x, location.y, particle.position.x, particle.position.y);
+		if(particleDistance < 200){
+			 force = PVector.sub(location, particle.position);
+			distance = force.mag();
+			force.normalize();
+			strength = -1 * g / distance * distance;
+			force.mult(strength);
+			colour.update();
+			
+		}else{
+			force = new PVector(0,0);
+		}
 		return force;
+		
 	}
 }
 class Particle{
@@ -207,14 +179,7 @@ class Particle{
     acceleration = new PVector(random(-1,1), random(-1,1));
     lifespan = 255;
   }
-
-  public void attractTest(float x, float y){
-    PVector mouse = new PVector(x,y);
-    mouse.sub(position);
-    mouse.setMag(0.4f);
-    acceleration = mouse;
-  }
-    
+  
   public void applyForce(PVector f){
     PVector force = PVector.div(f, mass);
     acceleration.add(force);
@@ -237,13 +202,12 @@ class Particle{
   }
 
   public void move(){
-    //println("partPosition: " + position);
     velocity.add(acceleration);
     velocity.limit(3);
     position.add(velocity);
 
     acceleration.mult(0);
-    lifespan -= 0.005f;
+    lifespan -= 0.00005f;
   }
 
   public void checkEdges(){
@@ -281,12 +245,6 @@ class Particle{
     return false;
   }
 
-  // void changeColor(){
-  // //fillColor = color(random(255), random(255), random(255));
-  // fillColor = color(0,160, random(255));
-  // }
-
-
   public void run(){
     checkEdges();
     move();
@@ -307,7 +265,7 @@ class ParticleSystem{
   float time = 0;
 
   int index;
-  int particleNumber = 1000;
+  int particleNumber = 500;
   
   ParticleSystem(){
   }
@@ -316,7 +274,7 @@ class ParticleSystem{
     position = location.get();
     for(int i = 0 ; i < particleNumber; i++){
       particle = new Particle();
-      if(millis() > time + 10){
+      if(millis() > time + 5){
         particleList.add(particle);
         time = millis();
       }
@@ -334,7 +292,7 @@ class ParticleSystem{
   // }
 
   public void showParticle(){
-    for(int i = particleList.size() -1; i >= 0; i--){
+    for(int i = particleList.size() - 1; i >= 0; i--){
       Particle part = particleList.get(i);
       part.run();
       if(part.isDead()){
@@ -361,10 +319,6 @@ class ParticleSystem{
   }
 
 	public void getAttracted(PVector location){
-  //void getAttracted(float x, float y){
-    //handPosition = new PVector(x, y);
-    //handPosition = location.get();
-		//hand = new Attractor(x, y);
     hand = new Attractor(location);
 
 		for(Particle part : particleList){
@@ -373,16 +327,8 @@ class ParticleSystem{
 		}
 	}
 
-  // void getAttracted(float x, float y){
-  //   for(Particle part : particleList){
-  //     part.attractTest(x,y);
-  //   }
-
-  // }
-
-	public void getRepulsed(PVector handpos){
-		handPosition = handpos.get();
-		hand = new Attractor(handPosition);
+	public void getRepulsed(PVector handPos){
+		hand = new Attractor(handPos);
 
 		for(Particle part : particleList){
 			force = hand.repulse(part);

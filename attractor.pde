@@ -7,19 +7,15 @@ class Attractor{
 	float distance;
 
 	Attractor(PVector position){
-	//Attractor(float x, float y){
 		location = position.get();
-		//location = new PVector(x,y);
-		mass = 20; // later one try with depthvalue
+		mass = random(20); // later one try with depthvalue
 		g = 5;
 	}
 
 	PVector attract(Particle particle){
 		PVector force = PVector.sub(location, particle.position);
-		//PVector force = location.sub(particle.position);
 		distance = force.mag();
 		force.normalize();
-		//strength = (g * mass * particle.mass) * (distance * distance);
 		strength = g / distance * distance;
 		force.mult(strength);
     colour.update();
@@ -28,14 +24,20 @@ class Attractor{
 	}
 
 	PVector repulse(Particle particle){
-		PVector force = PVector.sub(location, particle.position);
-		distance = force.mag();
-		force.normalize();
-		strength = -1 * g / distance * distance;//
-		//strength = (g * mass * particle.mass) * (distance * distance); 
-		force.mult(strength);
-    colour.update();
-		
+		PVector force;
+		float particleDistance = dist(location.x, location.y, particle.position.x, particle.position.y);
+		if(particleDistance < 200){
+			 force = PVector.sub(location, particle.position);
+			distance = force.mag();
+			force.normalize();
+			strength = -1 * g / distance * distance;
+			force.mult(strength);
+			colour.update();
+			
+		}else{
+			force = new PVector(0,0);
+		}
 		return force;
+		
 	}
 }
